@@ -164,6 +164,7 @@ public class SpotifyRepository {
         for(User u:users){
             if(u.getMobile().equals(mobile)){
                 user = u;
+                break;
             }
         }
         if(user.getMobile() == null){
@@ -173,12 +174,13 @@ public class SpotifyRepository {
         for(Song s:songs){
             if(s.getTitle().equals(songTitle)){
                 song = s;
+                break;
             }
         }
         if(song.getTitle() == null){
             throw new Exception("Song does not exist");
         }
-        if(songLikeMap.containsKey(song)){
+        if(!songLikeMap.containsKey(song)){
             boolean liked = false;
             for(User myUser :songLikeMap.get(song)){
                 if(myUser.equals(user)){
@@ -206,6 +208,12 @@ public class SpotifyRepository {
                     }
                     if(artistName != null)artistName.setLikes(artistName.getLikes()+1);
                 }
+                List<User> likedUsers = new ArrayList<>();
+                if(songLikeMap.containsKey(song)){
+                    likedUsers = songLikeMap.get(song);
+                }
+                likedUsers.add(user);
+                songLikeMap.put(song,likedUsers);
             }
         }
         return song;
@@ -213,7 +221,7 @@ public class SpotifyRepository {
 
     public String mostPopularArtist() {
         String most_pop_artist = "";
-        int likes = 0;
+        int likes = Integer.MIN_VALUE;
 
         for(Artist artist:artists){
             if(artist.getLikes() > likes){
@@ -226,7 +234,7 @@ public class SpotifyRepository {
 
     public String mostPopularSong() {
         String most_pop_song = "";
-        int likes = 0;
+        int likes = Integer.MIN_VALUE;
         for(Song song:songs){
             if(song.getLikes() > likes){
                 most_pop_song = song.getTitle();
