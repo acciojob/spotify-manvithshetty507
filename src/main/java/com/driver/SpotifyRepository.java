@@ -50,12 +50,20 @@ public class SpotifyRepository {
     }
 
     public Album createAlbum(String title, String artistName) {
-        if(artists.contains(artistName)){
+
+        Artist artist = new Artist();
+        for(Artist a:artists){
+            if(a.getName().equals(artistName)){
+                artist = a;
+            }
+        }
+        if(artists.contains(artist)){
             Album newAlbum = new Album(title);
             albums.add(newAlbum);
             return newAlbum;
         }
         Artist newArtist = new Artist(artistName);
+        artists.add(newArtist);
         Album new_Album = new Album(title);
         albums.add(new_Album);
         return new_Album;
@@ -70,7 +78,7 @@ public class SpotifyRepository {
 
                 List<Song> list = new ArrayList<>();
                 if(albumSongMap.containsKey(album)){
-                    list = albumSongMap.get(albumName);
+                    list = albumSongMap.get(album);
                 }
                 list.add(newSong);
                 albumSongMap.put(album,list);
@@ -152,22 +160,22 @@ public class SpotifyRepository {
     }
 
     public Song likeSong(String mobile, String songTitle) throws Exception {
-        User user = null;
+        User user = new User();
         for(User u:users){
             if(u.getMobile().equals(mobile)){
                 user = u;
             }
         }
-        if(user == null){
+        if(user.getMobile() == null){
             throw new Exception("User does not exist");
         }
-        Song song = null;
+        Song song = new Song();
         for(Song s:songs){
             if(s.getTitle().equals(songTitle)){
                 song = s;
             }
         }
-        if(song == null){
+        if(song.getTitle() == null){
             throw new Exception("Song does not exist");
         }
         if(songLikeMap.containsKey(song)){
@@ -175,6 +183,7 @@ public class SpotifyRepository {
             for(User myUser :songLikeMap.get(song)){
                 if(myUser.equals(user)){
                     liked = true;
+                    break;
                 }
             }
             if(!liked){
@@ -187,36 +196,41 @@ public class SpotifyRepository {
                         break;
                     }
                 }
-                Artist artistName = null;
-                for(Map.Entry<Artist,List<Album>> aa_map:artistAlbumMap.entrySet()){
-                    if(aa_map.getValue().contains(albumName)){
-                        artistName = aa_map.getKey();
-                        break;
+                if(albumName != null){
+                    Artist artistName = null;
+                    for(Map.Entry<Artist,List<Album>> aa_map:artistAlbumMap.entrySet()){
+                        if(aa_map.getValue().contains(albumName)){
+                            artistName = aa_map.getKey();
+                            break;
+                        }
                     }
+                    if(artistName != null)artistName.setLikes(artistName.getLikes()+1);
                 }
-                if(artistName != null)artistName.setLikes(artistName.getLikes()+1);
             }
         }
         return song;
     }
 
     public String mostPopularArtist() {
-        String most_pop_artist = null;
+        String most_pop_artist = "";
         int likes = 0;
+
         for(Artist artist:artists){
             if(artist.getLikes() > likes){
                 most_pop_artist = artist.getName();
+                likes = artist.getLikes();
             }
         }
         return most_pop_artist;
     }
 
     public String mostPopularSong() {
-        String most_pop_song = null;
+        String most_pop_song = "";
         int likes = 0;
         for(Song song:songs){
             if(song.getLikes() > likes){
                 most_pop_song = song.getTitle();
+                likes = song.getLikes();
             }
         }
         return most_pop_song;
